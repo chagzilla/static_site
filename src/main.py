@@ -5,24 +5,25 @@ from htmlnode import generate_page
 STATIC_DIR_LOC = 'static'
 PUBLIC_DIR_LOC = 'public'
 CONTENT_DIR_LOC = 'content'
+DOC_DIR_LOC = 'docs'
 
-def copy_from_static():
+def copy_from_static(target_dir):
     if not os.path.exists(STATIC_DIR_LOC):
         print(f"{STATIC_DIR_LOC} doesn't exist")
         return
 
-    if os.path.exists(PUBLIC_DIR_LOC):
-        print(f"Removing all files from {PUBLIC_DIR_LOC}")
-        shutil.rmtree(PUBLIC_DIR_LOC)
-    os.mkdir(PUBLIC_DIR_LOC)
+    if os.path.exists(target_dir):
+        print(f"Removing all files from {target_dir}")
+        shutil.rmtree(target_dir)
+    os.mkdir(target_dir)
 
     static_files = os.listdir(STATIC_DIR_LOC)
     while static_files:
         file = static_files.pop()
         static_dir_file_loc = os.path.join(STATIC_DIR_LOC, file)
-        public_dir_file_loc = os.path.join(PUBLIC_DIR_LOC, file)
+        public_dir_file_loc = os.path.join(target_dir, file)
         if os.path.isfile(static_dir_file_loc):
-            print(f"Moving {file} to {PUBLIC_DIR_LOC}")
+            print(f"Moving {file} to {target_dir}")
             shutil.copy(static_dir_file_loc, public_dir_file_loc)
         else:
             print(f"Creating dir: {file}")
@@ -46,10 +47,13 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, bas
 
 def main():
     base_url = '/'
+    target_dir = PUBLIC_DIR_LOC
     if len(sys.argv) >= 2:
         base_url = sys.argv[1]
-    copy_from_static()
-    generate_pages_recursive(CONTENT_DIR_LOC, 'template.html', PUBLIC_DIR_LOC, base_url)
+    if len(sys.argv) >= 3:
+        target_dir = sys.argv[2]
+    copy_from_static(target_dir)
+    generate_pages_recursive(CONTENT_DIR_LOC, 'template.html', target_dir, base_url)
 
 
 if __name__ == "__main__":
